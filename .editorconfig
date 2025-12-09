@@ -1,0 +1,9 @@
+root = true
+
+[*.{cs,fs,vb}]
+indent_style = space
+indent_size = 4
+
+[*.{ts,js,json,md}]
+indent_style = space
+indent_size = 2

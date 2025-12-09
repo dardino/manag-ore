@@ -1,0 +1,10 @@
+**/node_modules
+**/bin
+**/obj
+**/.vs
+**/.git
+**/.github
+**/src/Web/ClientApp/node_modules
+**/dist
+Dockerfile
+docker-compose.dev.yml
