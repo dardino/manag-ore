@@ -3,15 +3,30 @@ using ManagOre.Api.Models;
 
 namespace ManagOre.Api.Data;
 
+/// <summary>
+/// EF Core application DB context. Contains core sets for the main entities used by the POC API.
+/// </summary>
 public class ApplicationDbContext : DbContext
 {
+    /// <summary>
+    /// Create a new <see cref="ApplicationDbContext"/> with the given options.
+    /// </summary>
+    /// <param name="options">DB context options</param>
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
+    /// <summary>Timesheet entries.</summary>
     public DbSet<TimeEntry> TimeEntries { get; set; } = null!;
+    /// <summary>Employees table.</summary>
     public DbSet<Employee> Employees { get; set; } = null!;
+    /// <summary>Projects table.</summary>
     public DbSet<Project> Projects { get; set; } = null!;
+    /// <summary>Project groups table.</summary>
     public DbSet<ProjectGroup> ProjectGroups { get; set; } = null!;
 
+    /// <summary>
+    /// Configure EF model mappings and constraints.
+    /// </summary>
+    /// <param name="modelBuilder">Model builder</param>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

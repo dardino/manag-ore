@@ -5,8 +5,12 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace ManagOre.Api.Data.Migrations
 {
+    /// <summary>
+    /// Initial migration creating core tables for the application.
+    /// </summary>
     public partial class InitialCreate : Migration
     {
+        /// <summary>Apply schema changes.</summary>
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
@@ -100,6 +104,7 @@ namespace ManagOre.Api.Data.Migrations
                 column: "ProjectId");
         }
 
+        /// <summary>Revert schema changes.</summary>
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(name: "TimeEntries");

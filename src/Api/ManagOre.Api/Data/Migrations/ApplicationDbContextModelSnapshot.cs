@@ -5,9 +5,13 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace ManagOre.Api.Data.Migrations
 {
+    /// <summary>
+    /// Snapshot of the current EF Core model for migrations.
+    /// </summary>
     [DbContext(typeof(ApplicationDbContext))]
     partial class ApplicationDbContextModelSnapshot : ModelSnapshot
     {
+        /// <inheritdoc />
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
             modelBuilder
