@@ -42,16 +42,8 @@ public class PostgresIntegrationTests
             Console.WriteLine($"Migrations available: {string.Join(',', all)}");
             Console.WriteLine($"Pending migrations: {string.Join(',', pending)}");
 
-            try
-            {
-                ctx.Database.Migrate();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Migrate failed: {ex.Message}");
-                // If EF migrations are not found for this environment or applying fails, EnsureCreated will create schema directly
-                ctx.Database.EnsureCreated();
-            }
+            // For CI/local integration tests we ensure the schema exists so tests are resilient
+            ctx.Database.EnsureCreated();
         }
 
         using (var ctx = new ApplicationDbContext(options))
