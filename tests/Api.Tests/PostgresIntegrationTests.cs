@@ -36,13 +36,20 @@ public class PostgresIntegrationTests
         // apply migrations if present; fallback to EnsureCreated for CI/local environments
         using (var ctx = new ApplicationDbContext(options))
         {
+            // debug: list available/pending migrations for investigation
+            var all = ctx.Database.GetMigrations();
+            var pending = ctx.Database.GetPendingMigrations();
+            Console.WriteLine($"Migrations available: {string.Join(',', all)}");
+            Console.WriteLine($"Pending migrations: {string.Join(',', pending)}");
+
             try
             {
                 ctx.Database.Migrate();
             }
-            catch
+            catch (Exception ex)
             {
-                // If EF migrations are not found for this environment, EnsureCreated will create schema directly
+                Console.WriteLine($"Migrate failed: {ex.Message}");
+                // If EF migrations are not found for this environment or applying fails, EnsureCreated will create schema directly
                 ctx.Database.EnsureCreated();
             }
         }
