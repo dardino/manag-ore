@@ -15,6 +15,8 @@ fi
 echo "Scanning ${ISSUES_DIR} for issue files..."
 
 found=0
+REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner) || REPO=""
+existing_titles=$(gh issue list --repo "$REPO" --state all --json title --jq '.[].title' || true)
 for f in ${ISSUES_DIR}/*.md; do
   [ -e "$f" ] || continue
   found=1
@@ -34,20 +36,35 @@ for f in ${ISSUES_DIR}/*.md; do
   labelsLine=$(sed -n '2,6p' "$f" | grep -i '^Labels:' || true)
   milestoneLine=$(sed -n '2,8p' "$f" | grep -i '^Milestone:' || true)
   if [ -n "$labelsLine" ]; then
-    labels=$(echo "$labelsLine" | sed -e 's/Labels:[[:space:]]*//I' -e 's/,/ /g')
+    # Normalize labels: remove prefix, split by comma and trim whitespace
+    labels=$(echo "$labelsLine" | sed -e 's/Labels:[[:space:]]*//I' -e 's/,/\n/g' | sed -e 's/^\s*//' -e 's/\s*$//' )
   fi
   if [ -n "$milestoneLine" ]; then
     milestone=$(echo "$milestoneLine" | sed -e 's/Milestone:[[:space:]]*//I')
   fi
 
+  # avoid creating duplicate issues with the same title
+  if echo "$existing_titles" | grep -Fxq "$title"; then
+    echo "Skipping existing issue with title: $title"
+    continue
+  fi
+
   echo "Creating issue: $title"
   cmd=(gh issue create --title "$title" --body-file "$f")
   if [ -n "$labels" ]; then
-    cmd+=(--label "$labels")
+    # Add one --label argument per label (handles multiple labels)
+    while IFS= read -r lab; do
+      [ -n "$lab" ] || continue
+      cmd+=(--label "$lab")
+    done <<< "$labels"
   fi
   if [ -n "$milestone" ]; then
-    # gh milestone list shows available milestones; attempt to set
-    cmd+=(--milestone "$milestone")
+    # Add milestone only if it exists on the remote repo (gh api may not print list reliably)
+    if gh api repos/${REPO}/milestones --jq '.[].title' | grep -Fxq "$milestone"; then
+      cmd+=(--milestone "$milestone")
+    else
+      echo "Milestone '$milestone' not found in repo — creating issue without milestone assignment"
+    fi
   fi
 
   # Run the command
