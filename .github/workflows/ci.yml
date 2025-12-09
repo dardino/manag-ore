@@ -41,9 +41,26 @@ jobs:
           dotnet test tests/Api.Tests --no-build --verbosity normal --filter "FullyQualifiedName~PostgresIntegrationTests"
       - name: Publish swagger
         run: |
-          dotnet run --project src/Api/ManagOre.Api --urls http://localhost:5001 &
-          sleep 4
-          curl -sS http://localhost:5001/swagger/v1/swagger.json -o artifacts/swagger/v1.json || true
+          # run the API in Development so swagger endpoints are enabled in CI
+          mkdir -p artifacts/swagger
+          ASPNETCORE_ENVIRONMENT=Development dotnet run --project src/Api/ManagOre.Api --urls http://localhost:5001 &
+
+          # wait for swagger endpoint - try several times with a short delay
+          max_attempts=20
+          attempt=1
+          while [ $attempt -le $max_attempts ]; do
+            echo "Attempt $attempt: fetching swagger..."
+            if curl -sS -f http://localhost:5001/swagger/v1/swagger.json -o artifacts/swagger/v1.json; then
+              echo "Swagger fetched successfully"
+              break
+            fi
+            attempt=$((attempt+1))
+            sleep 2
+          done
+          if [ ! -f artifacts/swagger/v1.json ]; then
+            echo "Failed to fetch swagger after ${max_attempts} attempts"
+            ls -la artifacts || true
+          fi
       - uses: actions/upload-artifact@v4
         with:
           name: swagger-artifacts
@@ -63,6 +80,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'pnpm'
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: '8'
       - name: Install and generate client
         working-directory: src/Web/ClientApp
         run: |
