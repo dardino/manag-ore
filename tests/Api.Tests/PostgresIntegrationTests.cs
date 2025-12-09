@@ -29,7 +29,8 @@ public class PostgresIntegrationTests
         }
 
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseNpgsql(cs, b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName))
+            // Ensure the migrations assembly name is the simple assembly name (e.g. 'ManagOre.Api') so EF can locate compiled migrations
+            .UseNpgsql(cs, b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.GetName().Name))
             .Options;
 
         // apply migrations
