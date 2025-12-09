@@ -122,6 +122,17 @@ Pull requests / commits
 - Small PRs > easier to review. Tests must pass.
 - Commits: use imperative style in English/Italian (e.g., "Add TimesheetsController and model TimeEntry").
 
+Branch & PR rule for Issues
+
+- Every issue MUST have a corresponding branch created from `main` (or the correct target branch) **before** starting work.
+  - Branch naming convention: `issue/<ISSUE-ID>-short-description` or `feat/<ISSUE-ID>-short-description` / `fix/<ISSUE-ID>-short-description`.
+  - Example: `issue/T-001-scaffold-timesheets` or `feat/T-006-apifetchadapter`.
+- Work on the feature must be pushed on that branch and a Pull Request (PR) must be opened to merge into `main` (or the appropriate release branch).
+  - The PR **must reference** the issue it implements and include a closing keyword when ready to close it, e.g., `Closes #13` or `Fixes #13` in the PR description. This will automatically close the issue when the PR is merged.
+  - PR title should contain the issue id and a short description, e.g. `T-001: Scaffold TimesheetsController`.
+- Each PR should include at least one unit test or a clear note why tests are not applicable.
+- Do not push work directly to `main` — always use a branch + PR so reviewers can review and CI runs.
+
 Roadmap coordination & issue creation
 
 - Use `.github/ROADMAP.md` as the single source of truth for milestones.
