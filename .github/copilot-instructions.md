@@ -19,7 +19,7 @@ Principi generali
 
 Ambiente & prerequisiti
 
-- Local dev (recommendato): macOS o Linux, docker & docker-compose, dotnet 8 SDK, Node.js (v20+), pnpm (>=7).
+ - Local dev (recommendato): macOS o Linux, docker & docker-compose, dotnet 9 SDK, Node.js (v20+), pnpm (>=7).
 - Default shell: zsh — usa comandi compatibili con zsh negli esempi.
 
 Struttura repo (rapida)
@@ -38,7 +38,7 @@ Regole di scaffolding / implementazione
 1) Prima di scrivere codice: controlla `ROADMAP.md` e `plan-managOreScaffoldPlan.prompt.md` per capire milestones e priorità.
 2) Usa la struttura stabilita: aggiungi backend in `src/Api/ManagOre.Api`, frontend in `src/Web/ClientApp`.
 3) Segui queste scelte tecniche (default):
-   - .NET 8, EF Core + Npgsql
+  - .NET 9, EF Core + Npgsql
    - API versioning route-based: `api/v{version}/[controller]`
    - Swagger via Swashbuckle per ogni versione
    - Authentication: Azure AD (Microsoft.Identity.Web) + msal-browser/msal-angular in frontend
