@@ -22,7 +22,8 @@ M1 — Scaffold iniziale (repo pronto-to-run)
    - ID: M1
    - Obiettivo: scaffolding completo di repository — backend (API + EF/Postgres), frontend (Angular + pnpm), Docker multi-stage e `docker-compose.dev.yml`.
    - Output: progetto clonabile e avviabile localmente.
-   - Stato: backlog
+   - Stato: done ✅
+   - Data completamento: 2025-12-09
 
 M2 — Core data model & persistence
    - ID: M2
