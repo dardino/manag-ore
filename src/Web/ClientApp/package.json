@@ -1,0 +1,21 @@
+{
+  "name": "managore-client",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "ng serve --port 4200",
+    "build": "ng build --configuration production",
+    "generate:api:from-file": "swagger-typescript-api generate --path ./swagger/v1.json --output ./src/app/api-client --useFetch --name api-client.ts",
+    "generate:api:from-url": "swagger-typescript-api generate --path http://localhost:5000/swagger/v1/swagger.json --output ./src/app/api-client --useFetch --name api-client.ts",
+    "generate:api:ci": "swagger-typescript-api generate --path ./artifacts/swagger/v1.json --output ./src/app/api-client --useFetch --name api-client.ts",
+    "test:client": "pnpm run generate:api:from-file && vitest run",
+    "test:client:watch": "vitest --watch"
+  },
+  "devDependencies": {
+    "swagger-typescript-api": "^13.2.0",
+    "vitest": "^1.0.0",
+    "msw": "^1.0.0",
+    "whatwg-fetch": "^3.6.2",
+    "typescript": "^5.0.0"
+  }
+}

@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  api-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+      - name: Restore and build
+        run: |
+          dotnet restore src/Api/ManagOre.Api
+          dotnet build src/Api/ManagOre.Api -c Release --no-restore
+      - name: Run tests
+        run: dotnet test tests/Api.Tests --no-build --verbosity normal
+      - name: Publish swagger
+        run: |
+          dotnet run --project src/Api/ManagOre.Api --urls http://localhost:5001 &
+          sleep 4
+          curl -sS http://localhost:5001/swagger/v1/swagger.json -o artifacts/swagger/v1.json || true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: swagger-artifacts
+          path: artifacts/swagger
+
+  web-build:
+    runs-on: ubuntu-latest
+    needs: api-build
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download swagger
+        uses: actions/download-artifact@v4
+        with:
+          name: swagger-artifacts
+          path: artifacts/swagger
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install and generate client
+        working-directory: src/Web/ClientApp
+        run: |
+          pnpm install
+          pnpm run generate:api:ci || true
+      - name: Run frontend tests
+        working-directory: src/Web/ClientApp
+        run: pnpm run test:client || true
+      - name: Build frontend
+        working-directory: src/Web/ClientApp
+        run: pnpm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web-dist
+          path: src/Web/ClientApp/dist
+
+  image-build:
+    runs-on: ubuntu-latest
+    needs: [api-build, web-build]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and push image
+        run: |
+          docker build -t managore:ci .
