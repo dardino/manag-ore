@@ -50,7 +50,32 @@ for f in ${ISSUES_DIR}/*.md; do
   fi
 
   echo "Creating issue: $title"
-  cmd=(gh issue create --title "$title" --body-file "$f")
+  # Prepare a temporary body file that includes a suggested branch name following the repo rule
+  tmpfile=$(mktemp)
+  cat "$f" > "$tmpfile"
+  # if we can infer an issue identifier (T-123 or M1), create a suggested branch name
+  if [[ "$title" =~ ^([TM]-?[0-9A-Za-z]+) ]]; then
+    id_part="${BASH_REMATCH[1]}"
+  else
+    # fallback: use first token before space
+    id_part="$(echo "$title" | awk '{print $1}')"
+  fi
+  # create a slug from title (remove the id part and punctuation)
+  slug=$(echo "$title" | sed -E "s/^${id_part}[[:space:]—-]*//" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g' | sed -E 's/^-|-$//g')
+  # branch naming convention: issue/<ID>-<slug> for T-* ; milestone/<ID>-<slug> for M*
+  if [[ "$id_part" =~ ^T- ]]; then
+    suggested_branch="issue/${id_part}-${slug}"
+  elif [[ "$id_part" =~ ^M ]]; then
+    suggested_branch="milestone/${id_part}-${slug}"
+  else
+    suggested_branch="issue/${id_part}-${slug}"
+  fi
+  # append suggestion if not already present
+  if ! grep -q "Suggested branch:" "$tmpfile" 2>/dev/null; then
+    echo -e "\n---\nSuggested branch: \`$suggested_branch\`\nBranch rule: create branch from main named as above, work there and open a PR that references and closes this issue (e.g. 'Closes #<issue-number>')." >> "$tmpfile"
+  fi
+
+  cmd=(gh issue create --title "$title" --body-file "$tmpfile")
   if [ -n "$labels" ]; then
     # Add one --label argument per label (handles multiple labels)
     while IFS= read -r lab; do
@@ -70,6 +95,8 @@ for f in ${ISSUES_DIR}/*.md; do
   # Run the command
   echo "+ ${cmd[*]}"
   "${cmd[@]}"
+  # remove temporary file
+  rm -f "$tmpfile"
 done
 
 if [ $found -eq 0 ]; then

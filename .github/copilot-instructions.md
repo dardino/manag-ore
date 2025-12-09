@@ -1,3 +1,4 @@
+````markdown
 COPILOT / Assistente — Istruzioni operative per il repo ManagOre
 
 Scopo
@@ -122,28 +123,23 @@ Pull requests / commits
 - Small PRs > easier to review. Tests must pass.
 - Commits: use imperative style in English/Italian (e.g., "Add TimesheetsController and model TimeEntry").
 
+Note: A Pull Request template is available at `.github/PULL_REQUEST_TEMPLATE.md` — please fill it out when opening PRs.
+
 Branch & PR rule for Issues
 
 - Every issue MUST have a corresponding branch created from `main` (or the correct target branch) **before** starting work.
   - Branch naming convention: `issue/<ISSUE-ID>-short-description` or `feat/<ISSUE-ID>-short-description` / `fix/<ISSUE-ID>-short-description`.
   - Example: `issue/T-001-scaffold-timesheets` or `feat/T-006-apifetchadapter`.
-- Work on the feature must be pushed on that branch and a Pull Request (PR) must be opened to merge into `main` (or the appropriate release branch).
+- Work on the feature must be pushed on that branch and a Pull Request (PR) must be opened to merge into `main` (or the appropriate release branch`).
   - The PR **must reference** the issue it implements and include a closing keyword when ready to close it, e.g., `Closes #13` or `Fixes #13` in the PR description. This will automatically close the issue when the PR is merged.
   - PR title should contain the issue id and a short description, e.g. `T-001: Scaffold TimesheetsController`.
 - Each PR should include at least one unit test or a clear note why tests are not applicable.
 - Do not push work directly to `main` — always use a branch + PR so reviewers can review and CI runs.
 
-Roadmap coordination & issue creation
+Automations & helpers
 
-- Use `.github/ROADMAP.md` as the single source of truth for milestones.
-- Prefer creating a GitHub Issue for a roadmap task (I can create them for you if you instruct me).
-
-When to ask for human help
-
-- On policy decisions (e.g., whether to commit generated client or generate in CI), ask the project owner.
-- When a PR changes external infra or introduces secrets, require human approval.
-
-Fine tuning / follow-up
+- The helper script `scripts/create_github_issues.sh` appends a "Suggested branch" line to each created issue body to help you follow the branch naming convention. Use that suggested branch when starting work on the issue.
+- When opening a PR, use the PR template and include `Closes #<issue-number>` (or similar) so GitHub will auto-close the issue on merge.
 
 Se vuoi, posso:
 - creare tutte le GitHub Issues per le milestone M1..M10 in `ROADMAP.md`;
@@ -156,8 +152,6 @@ Sei pronto per la prossima azione? Scegli tra:
 1) Creo le Issues per le milestone (M1..M10).
 2) Scaffold completo del monorepo.
 3) Scaffold frontend (ClientApp) ora.
-
-Scrivi la tua scelta e procedo.
 
 Creazione automatica delle issue
 
@@ -174,3 +168,4 @@ scripts/create_github_issues.sh
 ```
 
 Note: lo script usa i file Markdown in `.github/issues`.
+````
