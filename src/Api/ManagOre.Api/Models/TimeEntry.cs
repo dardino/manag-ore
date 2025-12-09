@@ -10,4 +10,8 @@ public class TimeEntry
   public DateTime Date { get; set; }
   public double Hours { get; set; }
   public string? Description { get; set; }
+
+  // navigation
+  public Employee? Employee { get; set; }
+  public Project? Project { get; set; }
 }

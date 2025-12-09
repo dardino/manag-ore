@@ -9,6 +9,17 @@ on:
 jobs:
   api-build:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: managore_tests
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd='pg_isready -U test' --health-interval=5s --health-timeout=2s --health-retries=10
     steps:
       - uses: actions/checkout@v4
       - name: Setup .NET
@@ -19,8 +30,15 @@ jobs:
         run: |
           dotnet restore src/Api/ManagOre.Api
           dotnet build src/Api/ManagOre.Api -c Release --no-restore
-      - name: Run tests
-        run: dotnet test tests/Api.Tests --no-build --verbosity normal
+      - name: Run unit tests (sqlite fast tests)
+        run: dotnet test tests/Api.Tests --no-build --verbosity normal --filter "FullyQualifiedName!~PostgresIntegrationTests"
+      - name: Run Postgres integration tests (Postgres service)
+        env:
+          POSTGRES_INTEGRATION: true
+          POSTGRES_CONNECTION_STRING: "Host=localhost;Port=5432;Database=managore_tests;Username=test;Password=test"
+        run: |
+          # Only run Postgres integration tests to keep runtime short and focused
+          dotnet test tests/Api.Tests --no-build --verbosity normal --filter "FullyQualifiedName~PostgresIntegrationTests"
       - name: Publish swagger
         run: |
           dotnet run --project src/Api/ManagOre.Api --urls http://localhost:5001 &
