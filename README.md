@@ -8,6 +8,32 @@ Stack summary
 - Auth: Azure AD via Microsoft.Identity.Web + msal-angular placeholders
 - Container: single multi-stage Docker image (build Angular -> dotnet publish -> copy dist to wwwroot)
 
+Requirements
+- .NET SDK 9.0 (or higher) — the repo now targets net9.0. Install via Homebrew or from Microsoft downloads.
+- Node.js 20+ and pnpm >=7 for frontend tasks
+
+Postgres integration tests (local)
+If you want to run the Postgres integration tests locally (they are enabled in CI), start a local Postgres and export the connection string and the toggle environment variable before running tests:
+
+Using docker-compose (recommended):
+
+```bash
+docker compose -f docker-compose.dev.yml up -d postgres
+# Wait for startup, then run tests (example connection string values match the compose file):
+export POSTGRES_INTEGRATION=true
+export POSTGRES_CONNECTION_STRING="Host=localhost;Port=5432;Database=managore_tests;Username=dev;Password=dev"
+dotnet test tests/Api.Tests --filter "FullyQualifiedName~PostgresIntegrationTests"
+```
+
+Using docker run (quick):
+
+```bash
+docker run --rm -e POSTGRES_DB=managore_tests -e POSTGRES_USER=test -e POSTGRES_PASSWORD=test -p 5432:5432 postgres:15-alpine &
+export POSTGRES_INTEGRATION=true
+export POSTGRES_CONNECTION_STRING="Host=localhost;Port=5432;Database=managore_tests;Username=test;Password=test"
+dotnet test tests/Api.Tests --filter "FullyQualifiedName~PostgresIntegrationTests"
+```
+
 Quick dev commands
 
 Local docker compose development (Postgres + app):
