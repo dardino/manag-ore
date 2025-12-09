@@ -33,7 +33,7 @@ public class PostgresIntegrationTests
             .UseNpgsql(cs, b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.GetName().Name))
             .Options;
 
-        // apply migrations if present; fallback to EnsureCreated for CI/local environments
+        // Reset DB schema to a clean state so tests are idempotent and not affected by prior runs
         using (var ctx = new ApplicationDbContext(options))
         {
             // debug: list available/pending migrations for investigation
@@ -42,7 +42,18 @@ public class PostgresIntegrationTests
             Console.WriteLine($"Migrations available: {string.Join(',', all)}");
             Console.WriteLine($"Pending migrations: {string.Join(',', pending)}");
 
-            // For CI/local integration tests we ensure the schema exists so tests are resilient
+            // Drop and recreate the public schema, then ensure EF creates the tables
+            // Note: this requires the DB user to have permissions to drop/create schema
+            try
+            {
+                ctx.Database.ExecuteSqlRaw("DROP SCHEMA public CASCADE;");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ignore drop schema error: {ex.Message}");
+            }
+
+            ctx.Database.ExecuteSqlRaw("CREATE SCHEMA public;");
             ctx.Database.EnsureCreated();
         }
 
